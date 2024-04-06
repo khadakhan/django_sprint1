@@ -1,6 +1,6 @@
 from django.shortcuts import render
+from django.http import Http404
 
-# Create your views here.
 posts = [
     {
         'id': 0,
@@ -44,22 +44,27 @@ posts = [
     },
 ]
 
+# Создаем словарь, в котором ключ- это значение поля id словаря, а значением
+# будет индекс словаря в списке posts.
+# Ведь не факт, что, например, под индексом 0 в списке posts у нас будет
+# лежать словарь с id равным 0.
+
+id_index_posts = {post['id']: posts.index(post) for post in posts}
+
 
 def index(request):
-    template = 'blog/index.html'
-    context = {'posts': list(reversed(posts))}
-    return render(request, template, context)
+    return render(request, 'blog/index.html',
+                  {'posts': list(reversed(posts))})
 
 
-def post_detail(request, id):
-    template = 'blog/detail.html'
-    for post in posts:
-        if post['id'] == id:
-            context = {'post': post}
-    return render(request, template, context)
+def post_detail(request, post_id):
+    if post_id in id_index_posts:
+        return render(request, 'blog/detail.html',
+                      {'post': posts[id_index_posts[post_id]]})
+    else:
+        raise Http404(f'Пост с id = {post_id} не найден в posts')
 
 
 def category_posts(request, category_slug):
-    template = 'blog/category.html'
-    context = {'category_slug': category_slug}
-    return render(request, template, context)
+    return render(request, 'blog/category.html',
+                  {'category_slug': category_slug})
