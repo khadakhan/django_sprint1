@@ -44,12 +44,7 @@ posts = [
     },
 ]
 
-# Создаем словарь, в котором ключ- это значение поля id словаря, а значением
-# будет индекс словаря в списке posts.
-# Ведь не факт, что, например, под индексом 0 в списке posts у нас будет
-# лежать словарь с id равным 0.
-
-id_index_posts = {post['id']: posts.index(post) for post in posts}
+posts_by_id = {post['id']: post for post in posts}
 
 
 def index(request):
@@ -58,9 +53,9 @@ def index(request):
 
 
 def post_detail(request, post_id):
-    if post_id in id_index_posts:
+    if post_id in posts_by_id:
         return render(request, 'blog/detail.html',
-                      {'post': posts[id_index_posts[post_id]]})
+                      {'post': posts_by_id[post_id]})
     else:
         raise Http404(f'Пост с id = {post_id} не найден в posts')
 
